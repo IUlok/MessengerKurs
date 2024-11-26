@@ -6,8 +6,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class AuthorizationForm extends JFrame {
-    public static final String address = "93.100.166.31";
-    public static final int port = 23456;
+
     ObjectOutputStream out;
     ObjectInputStream in;
     Socket socket;
@@ -30,24 +29,32 @@ public class AuthorizationForm extends JFrame {
         passwordField = new JPasswordField();
         add(passwordField);
 
+        // Кнопка-текст "Создать пользователя"
+        JButton createUserButton = new JButton("Создать пользователя");
+        createUserButton.setBorderPainted(false);
+        createUserButton.setContentAreaFilled(false);
+        createUserButton.setForeground(Color.BLUE);
+        createUserButton.addActionListener(e -> {
+            new RegistrationForm(); // Открытие регистрационной формы
+            dispose(); //Закрытие текущей формы
+        });
+        add(createUserButton);
+
         // Кнопка "Вход"
         JButton loginButton = new JButton("Вход");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword());
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
 
-                // Здесь должна быть реализована аутентификация
-                // ... проверка username и password ...
+            // Здесь должна быть реализована аутентификация
+            // ... проверка username и password ...
 
-                if (isValidLogin(username, password)) { // Заглушка для проверки
-                    JOptionPane.showMessageDialog(AuthorizationForm.this, "Вход успешен!");
-                    dispose(); // Закрытие окна
-                    ChatFrame chat = new ChatFrame(socket, in, out, username);
-                } else {
-                    JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
-                }
+            if (isValidLogin(username, password)) { // Заглушка для проверки
+                JOptionPane.showMessageDialog(AuthorizationForm.this, "Вход успешен!");
+                dispose(); // Закрытие окна
+                ChatFrame chat = new ChatFrame(username);
+            } else {
+                JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
             }
         });
         add(new JLabel()); // Пустая метка для выравнивания
@@ -57,6 +64,28 @@ public class AuthorizationForm extends JFrame {
 
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
+
+        boolean connStatus = connectToServer();
+        if(!connStatus) {
+            // Заменить на диалоговое окно
+            System.err.println("Ошибка подключения к серверу");
+            dispose();
+        }
+    }
+
+    // Подключение к серверу. При удачном подключении возвращает true, иначе - false
+    private boolean connectToServer() {
+        try {
+            socket = new Socket(Main.address, Main.port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch(IOException e) {
+            return false;
+        }
+        Main.setInputStream(in);
+        Main.setOutputStream(out);
+        Main.setSocket(socket);
+        return true;
     }
 
     // Заглушка для проверки учетных данных. ЗАМЕНИТЕ ЭТО на реальную аутентификацию.
@@ -67,7 +96,7 @@ public class AuthorizationForm extends JFrame {
             return false;
         }
         try {
-            socket = new Socket(address, port);
+            socket = new Socket(Main.address, Main.port);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
             out.write(("login " + username + " " + password + "\n").getBytes());
@@ -86,10 +115,5 @@ public class AuthorizationForm extends JFrame {
             e2.getMessage();
         }
         return s.equals("OK");
-    }
-
-
-    public static void main(String[] args) {
-        new AuthorizationForm();
     }
 }

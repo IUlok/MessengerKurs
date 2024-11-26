@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Scanner;
 
 class ChatFrame extends JFrame {
-    ObjectOutputStream out;
-    ObjectInputStream in;
+    ObjectOutputStream out = Main.getOutputStream();
+    ObjectInputStream in = Main.getInputStream();
     DefaultListModel<String> dlm = new DefaultListModel<String>();
 
-    public ChatFrame (Socket socket, ObjectInputStream in, ObjectOutputStream out, String username) {
+    public ChatFrame (String username) {
         setTitle("Мессенджер");
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
