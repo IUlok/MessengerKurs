@@ -1,5 +1,6 @@
 package serializable;
 
+import java.awt.*;
 import java.io.Serializable;
 
 public class Message implements Serializable {

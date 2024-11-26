@@ -23,15 +23,21 @@ public class RegistrationForm extends JFrame {
         setLayout(new GridLayout(4, 2, 10, 10)); // 2 строки, 4 столбца, отступы 10 пикселей
 
         // Добавление надписей и полей ввода
-        add(new JLabel("Имя пользователя:"));
+        JLabel nameLabel = new JLabel("Имя пользователя:");
+        nameLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(nameLabel);
         usernameField = new JTextField();
         add(usernameField);
 
-        add(new JLabel("Пароль:"));
+        JLabel passwordLabel = new JLabel("Пароль:");
+        passwordLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(passwordLabel);
         passwordField = new JPasswordField();
         add(passwordField);
 
-        add(new JLabel("Повтор пароля:"));
+        JLabel repeatPasswordLabel = new JLabel("Повтор пароля:");
+        repeatPasswordLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(repeatPasswordLabel);
         repeatPasswordField = new JPasswordField();
         add(repeatPasswordField);
 

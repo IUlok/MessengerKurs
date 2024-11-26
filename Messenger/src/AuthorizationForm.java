@@ -22,11 +22,15 @@ public class AuthorizationForm extends JFrame {
         setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 2 столбца, отступы 10 пикселей
 
         // Добавление надписей и полей ввода
-        add(new JLabel("Имя пользователя:"));
+        JLabel nameLabel = new JLabel("Имя пользователя:");
+        nameLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(nameLabel);
         usernameField = new JTextField();
         add(usernameField);
 
-        add(new JLabel("Пароль:"));
+        JLabel passwordLabel = new JLabel("Пароль:");
+        passwordLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(passwordLabel);
         passwordField = new JPasswordField();
         add(passwordField);
 
@@ -111,9 +115,6 @@ public class AuthorizationForm extends JFrame {
             return false;
         }
         try {
-            socket = new Socket(Main.address, Main.port);
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
             out.write(("login " + username + " " + password + "\n").getBytes());
             out.flush();
 
