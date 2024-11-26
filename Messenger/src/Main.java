@@ -9,6 +9,7 @@ public class Main {
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
     private static Socket socket;
+    private String pushCommit = "Изменение";
 
     public static ObjectOutputStream getOutputStream() {
         return out;
