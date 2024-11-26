@@ -16,9 +16,10 @@ public class AuthorizationForm extends JFrame {
 
     public AuthorizationForm() {
         setTitle("Окно авторизации");
-        setSize(300, 200);
+        setSize(500, 200);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 2, 10, 10)); // 3 строки, 2 столбца, отступы 10 пикселей
+        setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 2 столбца, отступы 10 пикселей
 
         // Добавление надписей и полей ввода
         add(new JLabel("Имя пользователя:"));
@@ -35,6 +36,7 @@ public class AuthorizationForm extends JFrame {
         createUserButton.setContentAreaFilled(false);
         createUserButton.setForeground(Color.BLUE);
         createUserButton.addActionListener(e -> {
+            //disconnectFromServer();
             new RegistrationForm(); // Открытие регистрационной формы
             dispose(); //Закрытие текущей формы
         });
@@ -55,9 +57,10 @@ public class AuthorizationForm extends JFrame {
                 ChatFrame chat = new ChatFrame(username);
             } else {
                 JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
+                disconnectFromServer();
             }
         });
-        add(new JLabel()); // Пустая метка для выравнивания
+        //add(new JLabel()); // Пустая метка для выравнивания
         loginButton.setBackground(new Color(49, 58, 68));
         loginButton.setForeground(Color.WHITE);
         add(loginButton);
@@ -65,12 +68,7 @@ public class AuthorizationForm extends JFrame {
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
 
-        boolean connStatus = connectToServer();
-        if(!connStatus) {
-            // Заменить на диалоговое окно
-            System.err.println("Ошибка подключения к серверу");
-            dispose();
-        }
+
     }
 
     // Подключение к серверу. При удачном подключении возвращает true, иначе - false
@@ -88,8 +86,25 @@ public class AuthorizationForm extends JFrame {
         return true;
     }
 
+    private boolean disconnectFromServer() {
+        try {
+            in.close();
+            out.close();
+            socket.close();
+        } catch(IOException e) {
+            return false;
+        }
+        return true;
+    }
+
     // Заглушка для проверки учетных данных. ЗАМЕНИТЕ ЭТО на реальную аутентификацию.
     private boolean isValidLogin(String username, String password) {
+        boolean connStatus = connectToServer();
+        if(!connStatus) {
+            // Заменить на диалоговое окно
+            System.err.println("Ошибка подключения к серверу");
+            dispose();
+        }
         // Замените это на логику проверки учетных данных
         String s = null;
         if (username.isBlank() || password.isBlank()) {

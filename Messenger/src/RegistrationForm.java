@@ -17,9 +17,10 @@ public class RegistrationForm extends JFrame {
     public RegistrationForm() {
 
         setTitle("Окно регистрации");
-        setSize(300, 200);
+        setSize(500, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(4, 2, 10, 10)); // 3 строки, 2 столбца, отступы 10 пикселей
+        setResizable(false);
+        setLayout(new GridLayout(4, 2, 10, 10)); // 2 строки, 4 столбца, отступы 10 пикселей
 
         // Добавление надписей и полей ввода
         add(new JLabel("Имя пользователя:"));
@@ -32,20 +33,22 @@ public class RegistrationForm extends JFrame {
 
         add(new JLabel("Повтор пароля:"));
         repeatPasswordField = new JPasswordField();
-        add(passwordField);
+        add(repeatPasswordField);
 
         // Кнопка-текст "Войти в существующий аккаунт"
         JButton loginButton = new JButton("Войти в существующий аккаунт");
         loginButton.setBorderPainted(false);
         loginButton.setContentAreaFilled(false);
+        loginButton.setForeground(Color.BLUE);
         loginButton.addActionListener(e -> {
+            //disconnectFromServer();
             new AuthorizationForm();
             dispose();
         });
         add(loginButton);
 
         // Кнопка "Вход"
-        JButton registerButton = new JButton("Вход");
+        JButton registerButton = new JButton("Зарегистрироваться");
         registerButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -53,14 +56,17 @@ public class RegistrationForm extends JFrame {
 
             if(!password.equals(repeatedPassword)) {
                 JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
+                disconnectFromServer();
+                return;
             }
 
             if (isValidRegistration(username, password)) { // Заглушка для проверки
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Вход успешен!");
+                JOptionPane.showMessageDialog(RegistrationForm.this, "Вуаля! Регистрация прошла успешно!");
                 dispose(); // Закрытие окна
                 ChatFrame chat = new ChatFrame(username);
             } else {
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Неверный логин или пароль.");
+                JOptionPane.showMessageDialog(RegistrationForm.this, "Пользователь с таким именем уже зарегистрирован!!");
+                disconnectFromServer();
             }
         });
         registerButton.setBackground(new Color(49, 58, 68));
@@ -70,12 +76,6 @@ public class RegistrationForm extends JFrame {
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
 
-        boolean connStatus = connectToServer();
-        if(!connStatus) {
-            // Заменить на диалоговое окно
-            System.err.println("Ошибка подключения к серверу");
-            dispose();
-        }
     }
 
     private boolean connectToServer() {
@@ -92,9 +92,26 @@ public class RegistrationForm extends JFrame {
         return true;
     }
 
+    private boolean disconnectFromServer() {
+        try {
+            in.close();
+            out.close();
+            socket.close();
+        } catch(IOException e) {
+            return false;
+        }
+        return true;
+    }
+
     /* Попытка регистрации аккаунта username с паролем password.
     * При удачной регистрации возвращает true, иначе - false*/
     private boolean isValidRegistration(String username, String password) {
+        boolean connStatus = connectToServer();
+        if(!connStatus) {
+            // Заменить на диалоговое окно
+            System.err.println("Ошибка подключения к серверу");
+            dispose();
+        }
         String s = null;
         Scanner scanner = new Scanner(in);
 
