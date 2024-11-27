@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Scanner;
 
 public class ChatPanel extends JPanel {
     private List<Message> messages;
@@ -19,7 +20,6 @@ public class ChatPanel extends JPanel {
     private ObjectInputStream in = Main.getInputStream();
 
     public ChatPanel(ChatFrame chatFrame) {
-        this.toUser = chatFrame.currentUser;
         this.myUser = chatFrame.myUser;
 
         messagePole = new JTextField();
@@ -39,6 +39,9 @@ public class ChatPanel extends JPanel {
                 out.writeObject(message);
                 out.flush();
                 messagePole.setText("");
+                Scanner sc = new Scanner(in);
+                String response = sc.nextLine();
+                if(!response.equals("OK")) System.out.println("НЕ ОКЕЙ!!!!!!!!");
             } catch(IOException ex) {
                 messagePole.setText("");
             }

@@ -15,10 +15,10 @@ class ChatFrame extends JFrame {
     DefaultListModel<String> dlm = new DefaultListModel<String>();
     DefaultListModel<String> dlmchat = new DefaultListModel<String>();
     List<Message> messages;
-    User currentUser;
+    //User currentUser;
     String myUser;
     boolean flag = false;
-    ChatPanel chatPanel = new ChatPanel(this);
+    ChatPanel chatPanel;
 
     public ChatFrame (String username) {
         myUser = username;
@@ -54,7 +54,7 @@ class ChatFrame extends JFrame {
                             break;
                         }
                     }
-                    currentUser = user1;
+                    chatPanel.setToUser(user1);
                     // Получение списка сообщений
                     getMessagesList(user1);
                     flag = true;
@@ -62,6 +62,7 @@ class ChatFrame extends JFrame {
                 });
                 list.setBackground(new Color(49, 58, 68));
                 list.setForeground(Color.WHITE);
+                chatPanel = new ChatPanel(this);
                 add(list);
 
                 if (flag) {
@@ -81,8 +82,7 @@ class ChatFrame extends JFrame {
             }
         }
         catch (IOException e) {
-            System.out.println("Ошибка установки соединения");
-            e.printStackTrace();
+            System.out.println("Ошибка установки соединения: " + e.getMessage());
         }
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
