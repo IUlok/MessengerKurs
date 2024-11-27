@@ -3,6 +3,8 @@ import serializable.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -25,6 +27,31 @@ public class ChatPanel extends JPanel {
         this.myUser = chatFrame.myUser;
 
         messagePole = new JTextField();
+        messagePole.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    try {
+                        String msg = messagePole.getText();
+                        Message message = new Message(myUser, toUser.getUserName(), msg);
+                        out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
+                        out.flush();
+                        out.writeObject(message);
+                        out.flush();
+                        messagePole.setText("");
+                        Scanner sc = new Scanner(in);
+                        String response = sc.nextLine();
+                        if(!response.equals("OK")) return;
+                        messagesPanel.getMessages().add(message);
+                    } catch(IOException ex) {
+                        messagePole.setText("");
+                    }
+
+                    messagesPanel.revalidate();
+                    messagesPanel.repaint();
+                }
+            }
+        });
         messagePole.setPreferredSize(new Dimension(350, 30));
 
         setLayout(new BorderLayout());
@@ -60,7 +87,9 @@ public class ChatPanel extends JPanel {
         sendMessagePanel.add(messagePole);
         sendMessagePanel.add(sendButton);
         add(sendMessagePanel, BorderLayout.SOUTH);
-        add(messagesPanel, BorderLayout.CENTER);
+        JScrollPane scrollbar = new JScrollPane(messagesPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollbar, BorderLayout.CENTER);
     }
 
     public User getToUser() {
@@ -99,6 +128,7 @@ class MessagesPanel extends JPanel {
             try {
                 messages = (List<Message>) in.readObject();
                 //System.out.println(messages);
+                revalidate();
                 repaint();
             } catch(ClassNotFoundException e1) {
                 System.err.println("ERROR: ошибка получения результата getMessagesInChat");
@@ -119,6 +149,7 @@ class MessagesPanel extends JPanel {
                 g.drawString(msg.getSenderName() + ": " + msg.getText(), currentX, currentY);
                 currentY += dy;
             }
+            setPreferredSize(new Dimension(getWidth(), currentY));
         }
     }
 
