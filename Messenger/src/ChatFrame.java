@@ -44,6 +44,11 @@ class ChatFrame extends JFrame {
                 }
                 JList<String> list = new JList<String>(dlm);
                 list.addListSelectionListener(e -> {
+
+                    if(e.getValueIsAdjusting()) {
+                        return;
+                    }
+
                     String username1 = list.getSelectedValue();
                     User user1 = null;
                     for (User user:users) {
@@ -53,6 +58,7 @@ class ChatFrame extends JFrame {
                         }
                     }
                     currentUser = user1;
+                    // Получение списка сообщений
                     getMessagesList(user1);
                     flag = true;
                     sendButton.setEnabled(true);
@@ -116,6 +122,7 @@ class ChatFrame extends JFrame {
 
             try {
                 messages = (List<Message>) in.readObject();
+                System.out.println(messages);
             } catch(ClassNotFoundException e1) {
                 System.err.println("ERROR: ошибка получения результата getMessagesInChat");
             }
