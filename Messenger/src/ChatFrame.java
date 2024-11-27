@@ -14,7 +14,6 @@ class ChatFrame extends JFrame {
     ObjectInputStream in = Main.getInputStream();
     DefaultListModel<String> dlm = new DefaultListModel<String>();
     DefaultListModel<String> dlmchat = new DefaultListModel<String>();
-    List<Message> messages;
     //User currentUser;
     String myUser;
     boolean flag = false;
@@ -39,14 +38,14 @@ class ChatFrame extends JFrame {
                 for (User user:users) {
                     dlm.add(0, user.getUserName());
                 }
-                JList<String> list = new JList<String>(dlm);
-                list.addListSelectionListener(e -> {
+                JList<String> userList = new JList<String>(dlm);
+                userList.addListSelectionListener(e -> {
 
                     if(e.getValueIsAdjusting()) {
                         return;
                     }
 
-                    String username1 = list.getSelectedValue();
+                    String username1 = userList.getSelectedValue();
                     User user1 = null;
                     for (User user:users) {
                         if (user.getUserName().equals(username1)) {
@@ -55,24 +54,22 @@ class ChatFrame extends JFrame {
                         }
                     }
                     chatPanel.setToUser(user1);
-                    // Получение списка сообщений
-                    getMessagesList(user1);
-                    flag = true;
+                    chatPanel.getMessagesFromServer();
                     chatPanel.activate();
                 });
-                list.setBackground(new Color(49, 58, 68));
-                list.setForeground(Color.WHITE);
+                userList.setBackground(new Color(49, 58, 68));
+                userList.setForeground(Color.WHITE);
+                add(userList);
                 chatPanel = new ChatPanel(this);
-                add(list);
 
-                if (flag) {
-                    for (Message message : messages) {
-                        String out1 = message.getSenderName() + " : " + message.getText();
-                        dlm.add(0, out1);
-                    }
-                }
-                JList<String> listChats = new JList<String>(dlmchat);
-                listChats.setBackground(Color.lightGray);
+//                if (flag) {
+//                    for (Message message : messages) {
+//                        String out1 = message.getSenderName() + " : " + message.getText();
+//                        dlm.add(0, out1);
+//                    }
+//                }
+//                JList<String> listChats = new JList<String>(dlmchat);
+//                listChats.setBackground(Color.lightGray);
 
                 add(chatPanel);
 
@@ -86,23 +83,5 @@ class ChatFrame extends JFrame {
         }
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
-    }
-
-    private void getMessagesList (User user1) {
-        try {
-            out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));
-            out.flush();
-            out.writeObject(user1.getUserID());
-            out.flush();
-
-            try {
-                messages = (List<Message>) in.readObject();
-                System.out.println(messages);
-            } catch(ClassNotFoundException e1) {
-                System.err.println("ERROR: ошибка получения результата getMessagesInChat");
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 }

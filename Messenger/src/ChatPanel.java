@@ -9,22 +9,23 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ChatPanel extends JPanel {
-    private List<Message> messages;
     private String myUser;
     private User toUser;
 
     private JButton sendButton;
     private JTextField messagePole;
 
-    private ObjectOutputStream out = Main.getOutputStream();
-    private ObjectInputStream in = Main.getInputStream();
+    private MessagesPanel messagesPanel;
+    private JPanel sendMessagePanel;
+
+    private final ObjectOutputStream out = Main.getOutputStream();
+    private final ObjectInputStream in = Main.getInputStream();
 
     public ChatPanel(ChatFrame chatFrame) {
         this.myUser = chatFrame.myUser;
 
         messagePole = new JTextField();
         messagePole.setPreferredSize(new Dimension(350, 30));
-        messagePole.setVisible(false);
 
         setLayout(new BorderLayout());
 
@@ -46,24 +47,16 @@ public class ChatPanel extends JPanel {
                 messagePole.setText("");
             }
         });
-        sendButton.setVisible(false);
 
-        JPanel sendMessagePanel = new JPanel();
+        sendMessagePanel = new JPanel();
+        sendMessagePanel.setVisible(false);
 
-        MessagesPanel messagesPanel = new MessagesPanel();
+        messagesPanel = new MessagesPanel();
 
         sendMessagePanel.add(messagePole);
         sendMessagePanel.add(sendButton);
         add(sendMessagePanel, BorderLayout.SOUTH);
         add(messagesPanel, BorderLayout.CENTER);
-    }
-
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
     }
 
     public User getToUser() {
@@ -72,14 +65,51 @@ public class ChatPanel extends JPanel {
 
     public void setToUser(User toUser) {
         this.toUser = toUser;
+        messagesPanel.setToUser(toUser);
     }
 
     public void activate() {
-        sendButton.setVisible(true);
-        messagePole.setVisible(true);
+        sendMessagePanel.setVisible(true);
+    }
+
+    public void getMessagesFromServer() {
+        messagesPanel.getMessagesFromServer();
     }
 }
 
 class MessagesPanel extends JPanel {
 
+    private List<Message> messages;
+    private User toUser;
+
+    private final ObjectOutputStream out = Main.getOutputStream();
+    private final ObjectInputStream in = Main.getInputStream();
+
+    public void getMessagesFromServer() {
+        try {
+            out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));
+            out.flush();
+            out.writeObject(toUser.getUserID());
+            out.flush();
+
+            try {
+                messages = (List<Message>) in.readObject();
+                System.out.println(messages);
+                repaint();
+            } catch(ClassNotFoundException e1) {
+                System.err.println("ERROR: ошибка получения результата getMessagesInChat");
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+
+    }
+
+    public void setToUser(User toUser) {
+        this.toUser = toUser;
+    }
 }
