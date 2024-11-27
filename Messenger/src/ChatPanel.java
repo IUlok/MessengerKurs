@@ -42,10 +42,14 @@ public class ChatPanel extends JPanel {
                 messagePole.setText("");
                 Scanner sc = new Scanner(in);
                 String response = sc.nextLine();
-                if(!response.equals("OK")) System.out.println("НЕ ОКЕЙ!!!!!!!!");
+                if(!response.equals("OK")) return;
+                messagesPanel.getMessages().add(message);
             } catch(IOException ex) {
                 messagePole.setText("");
             }
+
+            messagesPanel.revalidate();
+            messagesPanel.repaint();
         });
 
         sendMessagePanel = new JPanel();
@@ -106,10 +110,23 @@ class MessagesPanel extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-
+        super.paintComponent(g);
+        int currentX = 10;
+        int currentY = 15;
+        int dy = 15;
+        if(messages != null) {
+            for (Message msg : messages) {
+                g.drawString(msg.getSenderName() + ": " + msg.getText(), currentX, currentY);
+                currentY += dy;
+            }
+        }
     }
 
     public void setToUser(User toUser) {
         this.toUser = toUser;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
     }
 }
