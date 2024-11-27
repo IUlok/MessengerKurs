@@ -6,9 +6,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 class ChatFrame extends JFrame {
     Socket socket = Main.getSocket();
@@ -20,6 +18,7 @@ class ChatFrame extends JFrame {
     User currentUser;
     String myUser;
     boolean flag = false;
+    ChatPanel chatPanel = new ChatPanel(this);
 
     public ChatFrame (String username) {
         myUser = username;
@@ -34,8 +33,6 @@ class ChatFrame extends JFrame {
             out.flush();
 
             List<User> users;
-            JButton sendButton = new JButton("Отправить");
-            sendButton.setEnabled(false);
 
             try {
                 users = (List<User>) in.readObject();
@@ -61,7 +58,7 @@ class ChatFrame extends JFrame {
                     // Получение списка сообщений
                     getMessagesList(user1);
                     flag = true;
-                    sendButton.setEnabled(true);
+                    chatPanel.activate();
                 });
                 list.setBackground(new Color(49, 58, 68));
                 list.setForeground(Color.WHITE);
@@ -75,30 +72,8 @@ class ChatFrame extends JFrame {
                 }
                 JList<String> listChats = new JList<String>(dlmchat);
                 listChats.setBackground(Color.lightGray);
-                JPanel chatPannel = new JPanel(new BorderLayout());
-                chatPannel.add(listChats);
 
-                JPanel messagePannel = new JPanel();
-                JTextField messagePole = new JTextField();
-                messagePole.setPreferredSize(new Dimension(350, 30));
-                messagePannel.add(messagePole);
-                sendButton.addActionListener(e -> {
-                    try {
-                        String msg = messagePole.getText();
-                        Message message = new Message(myUser, currentUser.getUserName(), msg);
-                        out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
-                        out.flush();
-                        out.writeObject(message);
-                        out.flush();
-                        getMessagesList(currentUser);
-                        messagePole.setText("");
-                    } catch (IOException ex) {
-                        messagePole.setText("");
-                    }
-                });
-                messagePannel.add(sendButton);
-                chatPannel.add(messagePannel, BorderLayout.SOUTH);
-                add(chatPannel);
+                add(chatPanel);
 
             } catch(ClassNotFoundException e) {
                 System.err.println("ERROR: ошибка получения результата getUsers");
