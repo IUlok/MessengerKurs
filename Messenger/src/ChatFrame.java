@@ -1,5 +1,6 @@
 import serializable.Message;
 import serializable.User;
+import javax.swing.Timer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ class ChatFrame extends JFrame {
     String myUser;
     boolean flag = false;
     ChatPanel chatPanel;
+    private Timer timer;
 
     public ChatFrame (String username) {
         myUser = username;
@@ -83,5 +85,11 @@ class ChatFrame extends JFrame {
         }
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
+        timer = new Timer(1000, e -> {
+            if (chatPanel.getToUser() == null) return;
+            chatPanel.getMessagesFromServer();
+            chatPanel.repaint();
+        });
+        timer.start();
     }
 }

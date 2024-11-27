@@ -98,7 +98,7 @@ class MessagesPanel extends JPanel {
 
             try {
                 messages = (List<Message>) in.readObject();
-                System.out.println(messages);
+                //System.out.println(messages);
                 repaint();
             } catch(ClassNotFoundException e1) {
                 System.err.println("ERROR: ошибка получения результата getMessagesInChat");
