@@ -4,6 +4,8 @@ import javax.swing.Timer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +28,19 @@ class ChatFrame extends JFrame {
         setTitle("ErroriestMsg");
         setSize(1000, 1000);
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                try {
+                    out.write("disconnect\n".getBytes());
+                    out.close();
+                    in.close();
+                    socket.close();
+                } catch (IOException ex) {
+                    System.err.println("Исключение: " + ex.getMessage());
+                }
+                System.exit(0);
+            }
+        });
         setLayout(new GridLayout(1, 2, 0, 0)); // 1 строка, 2 столбца, отступы 0 пикселей
         try {
             out.write("getUsers\n".getBytes(StandardCharsets.UTF_8));
