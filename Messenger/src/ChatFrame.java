@@ -23,32 +23,29 @@ class ChatFrame extends JFrame {
 
     public ChatFrame (String username) {
         myUser = username;
-        setTitle("Мессенджер");
+        setTitle("ErroriestMsg");
         setSize(1000, 1000);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(1, 2, 0, 0)); // 1 строки, 2 столбца, отступы 0 пикселей
+        setLayout(new GridLayout(1, 2, 0, 0)); // 1 строка, 2 столбца, отступы 0 пикселей
         try {
-
             out.write("getUsers\n".getBytes(StandardCharsets.UTF_8));
             out.flush();
-
             List<User> users;
-
             try {
                 users = (List<User>) in.readObject();
                 for (User user:users) {
-                    dlm.add(0, user.getUserName());
+                    if(user.getUserName().equals(myUser)) dlm.add(0, "Избранное");
+                    else dlm.add(0, user.getUserName());
                 }
                 JList<String> userList = new JList<String>(dlm);
                 userList.addListSelectionListener(e -> {
-
                     if(e.getValueIsAdjusting()) {
                         return;
                     }
-
                     String username1 = userList.getSelectedValue();
                     User user1 = null;
+                    if(username1.equals("Избранное")) username1 = myUser;
                     for (User user:users) {
                         if (user.getUserName().equals(username1)) {
                             user1 = user;
@@ -63,16 +60,6 @@ class ChatFrame extends JFrame {
                 userList.setForeground(Color.WHITE);
                 add(userList);
                 chatPanel = new ChatPanel(this);
-
-//                if (flag) {
-//                    for (Message message : messages) {
-//                        String out1 = message.getSenderName() + " : " + message.getText();
-//                        dlm.add(0, out1);
-//                    }
-//                }
-//                JList<String> listChats = new JList<String>(dlmchat);
-//                listChats.setBackground(Color.lightGray);
-
                 add(chatPanel);
 
             } catch(ClassNotFoundException e) {

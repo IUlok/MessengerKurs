@@ -11,79 +11,36 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ChatPanel extends JPanel {
-    private String myUser;
+    private final String myUser;
     private User toUser;
 
-    private JButton sendButton;
-    private JTextField messagePole;
+    private final JButton sendButton;
+    private final JTextField messagePole;
 
-    private MessagesPanel messagesPanel;
-    private JPanel sendMessagePanel;
+    private final MessagesPanel messagesPanel;
+    private final JPanel sendMessagePanel;
 
     private final ObjectOutputStream out = Main.getOutputStream();
     private final ObjectInputStream in = Main.getInputStream();
 
     public ChatPanel(ChatFrame chatFrame) {
         this.myUser = chatFrame.myUser;
-
         messagePole = new JTextField();
+        sendButton = new JButton("Отправить");
         messagePole.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    try {
-                        String msg = messagePole.getText();
-                        Message message = new Message(myUser, toUser.getUserName(), msg);
-                        out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
-                        out.flush();
-                        out.writeObject(message);
-                        out.flush();
-                        messagePole.setText("");
-                        Scanner sc = new Scanner(in);
-                        String response = sc.nextLine();
-                        if(!response.equals("OK")) return;
-                        messagesPanel.getMessages().add(message);
-                    } catch(IOException ex) {
-                        messagePole.setText("");
-                    }
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) sendMessage();
 
-                    messagesPanel.revalidate();
-                    messagesPanel.repaint();
-                }
             }
         });
-        messagePole.setPreferredSize(new Dimension(350, 30));
-
         setLayout(new BorderLayout());
-
-        sendButton = new JButton("Отправить");
-
-        sendButton.addActionListener(e -> {
-            try {
-                String msg = messagePole.getText();
-                Message message = new Message(myUser, toUser.getUserName(), msg);
-                out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
-                out.flush();
-                out.writeObject(message);
-                out.flush();
-                messagePole.setText("");
-                Scanner sc = new Scanner(in);
-                String response = sc.nextLine();
-                if(!response.equals("OK")) return;
-                messagesPanel.getMessages().add(message);
-            } catch(IOException ex) {
-                messagePole.setText("");
-            }
-
-            messagesPanel.revalidate();
-            messagesPanel.repaint();
-        });
+        messagePole.setPreferredSize(new Dimension(350, 30));
+        sendButton.addActionListener(e -> sendMessage());
+        messagesPanel = new MessagesPanel();
 
         sendMessagePanel = new JPanel();
         sendMessagePanel.setVisible(false);
-
-        messagesPanel = new MessagesPanel();
-
         sendMessagePanel.add(messagePole);
         sendMessagePanel.add(sendButton);
         add(sendMessagePanel, BorderLayout.SOUTH);
@@ -108,33 +65,48 @@ public class ChatPanel extends JPanel {
     public void getMessagesFromServer() {
         messagesPanel.getMessagesFromServer();
     }
+
+    private void sendMessage(){
+        try {
+            String msg = messagePole.getText();
+            Message message = new Message(myUser, toUser.getUserName(), msg);
+            out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
+            out.flush();
+            out.writeObject(message);
+            out.flush();
+            messagePole.setText("");
+            Scanner sc = new Scanner(in);
+            String response = sc.nextLine();
+            if(!response.equals("OK")) return;
+            messagesPanel.getMessages().add(message);
+        } catch(IOException ex) {
+            messagePole.setText("");
+        }
+        messagesPanel.revalidate();
+        messagesPanel.repaint();
+    }
 }
 
 class MessagesPanel extends JPanel {
-
     private List<Message> messages;
     private User toUser;
-
     private final ObjectOutputStream out = Main.getOutputStream();
     private final ObjectInputStream in = Main.getInputStream();
-
     public void getMessagesFromServer() {
         try {
             out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));
             out.flush();
             out.writeObject(toUser.getUserID());
             out.flush();
-
             try {
                 messages = (List<Message>) in.readObject();
-                //System.out.println(messages);
                 revalidate();
                 repaint();
-            } catch(ClassNotFoundException e1) {
+            } catch(ClassNotFoundException e) {
                 System.err.println("ERROR: ошибка получения результата getMessagesInChat");
             }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch (IOException ie) {
+            System.err.println("Исключение IOException: " + ie.getMessage());
         }
     }
 
@@ -145,7 +117,7 @@ class MessagesPanel extends JPanel {
         int currentY = 15;
         int dy = 15;
         if(messages != null) {
-            for (Message msg : messages) {
+            for (Message msg: messages) {
                 g.drawString(msg.getSenderName() + ": " + msg.getText(), currentX, currentY);
                 currentY += dy;
             }

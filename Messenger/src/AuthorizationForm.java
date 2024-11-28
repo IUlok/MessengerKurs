@@ -6,11 +6,9 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class AuthorizationForm extends JFrame {
-
     ObjectOutputStream out;
     ObjectInputStream in;
     Socket socket;
-
     private JTextField usernameField;
     private JPasswordField passwordField;
 
@@ -19,8 +17,7 @@ public class AuthorizationForm extends JFrame {
         setSize(500, 200);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 2 столбца, отступы 10 пикселей
-
+        setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 1 столбец, но как бы 2, отступы 10 пикселей
         // Добавление надписей и полей ввода
         JLabel nameLabel = new JLabel("Имя пользователя:");
         nameLabel.setHorizontalAlignment(JLabel.CENTER);
