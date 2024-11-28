@@ -39,6 +39,7 @@ class ChatFrame extends JFrame {
                     else dlm.add(0, user.getUserName());
                 }
                 JList<String> userList = new JList<String>(dlm);
+                userList.setFont(new Font("Courier", Font.BOLD, 30));
                 userList.addListSelectionListener(e -> {
                     if(e.getValueIsAdjusting()) {
                         return;

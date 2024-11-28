@@ -113,12 +113,17 @@ class MessagesPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.setFont(new Font("Courier", Font.BOLD, 20));
         int currentX = 10;
-        int currentY = 15;
-        int dy = 15;
+        int currentY = 30;
+        int dy = 30;
         if(messages != null) {
             for (Message msg: messages) {
-                g.drawString(msg.getSenderName() + ": " + msg.getText(), currentX, currentY);
+                String messageText = msg.getSenderName() + ": " + msg.getText();
+                g.setColor(new Color(49, 58, 68));
+                g.fillRoundRect(5, currentY-20, messageText.length()*12, 25, 10, 10);
+                g.setColor(Color.WHITE);
+                g.drawString(messageText, currentX, currentY);
                 currentY += dy;
             }
             setPreferredSize(new Dimension(getWidth(), currentY));
