@@ -122,7 +122,6 @@ public class RegistrationForm extends JFrame {
         if(!connStatus) {
             // Если метод connectToServer возвращает false, выводится диалоговое окно с плохой новостью
             JOptionPane.showMessageDialog(RegistrationForm.this, "Ошибка подключения к серверу!");
-            dispose();
             failConnection = true;
             return false;
         }
