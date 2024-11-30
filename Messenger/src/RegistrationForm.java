@@ -107,15 +107,14 @@ public class RegistrationForm extends JFrame {
         return true;
     }
 
-    private boolean disconnectFromServer() {
+    private void disconnectFromServer() {
         try {
             in.close();
             out.close();
             socket.close();
         } catch(IOException e) {
-            return false;
+            System.out.println("Исключение: " + e.getMessage());
         }
-        return true;
     }
 
     /* Попытка регистрации аккаунта username с паролем password.
