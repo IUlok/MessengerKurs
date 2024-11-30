@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -56,25 +58,27 @@ public class RegistrationForm extends JFrame {
         // Кнопка "Вход"
         JButton registerButton = new JButton("Зарегистрироваться");
         registerButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
-            String repeatedPassword = new String(repeatPasswordField.getPassword());
-
-            if(!password.equals(repeatedPassword)) {
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
-                disconnectFromServer();
-                return;
-            }
-
-            if (isValidRegistration(username, password)) { // Заглушка для проверки
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Вуаля! Регистрация прошла успешно!");
-                dispose(); // Закрытие окна
-                ChatFrame chat = new ChatFrame(username);
-            } else {
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Пользователь с таким именем уже зарегистрирован!!");
-                disconnectFromServer();
+            checkRegistration();
+        });
+        usernameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkRegistration();
             }
         });
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkRegistration();
+            }
+        });
+        repeatPasswordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkRegistration();
+            }
+        });
+
         registerButton.setBackground(new Color(49, 58, 68));
         registerButton.setForeground(Color.WHITE);
         add(registerButton);
@@ -142,6 +146,27 @@ public class RegistrationForm extends JFrame {
             return scanner.nextLine().equals("OK");
         } else {
             return false;
+        }
+    }
+
+    private void checkRegistration(){
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+        String repeatedPassword = new String(repeatPasswordField.getPassword());
+
+        if(!password.equals(repeatedPassword)) {
+            JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
+            disconnectFromServer();
+            return;
+        }
+
+        if (isValidRegistration(username, password)) { // Заглушка для проверки
+            JOptionPane.showMessageDialog(RegistrationForm.this, "Вуаля! Регистрация прошла успешно!");
+            dispose(); // Закрытие окна
+            ChatFrame chat = new ChatFrame(username);
+        } else {
+            JOptionPane.showMessageDialog(RegistrationForm.this, "Пользователь с таким именем уже зарегистрирован!!");
+            disconnectFromServer();
         }
     }
 }

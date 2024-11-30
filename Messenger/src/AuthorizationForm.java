@@ -46,22 +46,22 @@ public class AuthorizationForm extends JFrame {
         // Кнопка "Вход"
         JButton loginButton = new JButton("Вход");
         loginButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
+            checkLogin();
+        });
 
-            // Здесь должна быть реализована аутентификация
-            // ... проверка username и password ...
-
-            if (isValidLogin(username, password)) { // Заглушка для проверки
-                JOptionPane.showMessageDialog(AuthorizationForm.this, "Вход успешен!");
-                dispose(); // Закрытие окна
-                ChatFrame chat = new ChatFrame(username);
-            } else {
-                JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
-                disconnectFromServer();
+        usernameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkLogin();
             }
         });
-        //add(new JLabel()); // Пустая метка для выравнивания
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) checkLogin();
+            }
+        });
+
         loginButton.setBackground(new Color(49, 58, 68));
         loginButton.setForeground(Color.WHITE);
         add(loginButton);
@@ -128,5 +128,22 @@ public class AuthorizationForm extends JFrame {
             e2.getMessage();
         }
         return s.equals("OK");
+    }
+
+    private void checkLogin(){
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+
+        // Здесь должна быть реализована аутентификация
+        // ... проверка username и password ...
+
+        if (isValidLogin(username, password)) { // Заглушка для проверки
+            JOptionPane.showMessageDialog(AuthorizationForm.this, "Вход успешен!");
+            dispose(); // Закрытие окна
+            ChatFrame chat = new ChatFrame(username);
+        } else {
+            JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
+            disconnectFromServer();
+        }
     }
 }

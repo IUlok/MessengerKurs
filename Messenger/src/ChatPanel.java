@@ -43,6 +43,7 @@ public class ChatPanel extends JPanel {
         sendMessagePanel.setVisible(false);
         sendMessagePanel.add(messagePole);
         sendMessagePanel.add(sendButton);
+        sendMessagePanel.setBackground(new Color(41, 60, 48));
         add(sendMessagePanel, BorderLayout.SOUTH);
         JScrollPane scrollbar = new JScrollPane(messagesPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -92,8 +93,10 @@ class MessagesPanel extends JPanel {
     private User toUser;
     private final ObjectOutputStream out = Main.getOutputStream();
     private final ObjectInputStream in = Main.getInputStream();
+    private final Color backColor = new Color(41, 60, 48);
     public MessagesPanel(){
         setLayout(new GridBagLayout());
+        setBackground(backColor);
     }
     public void getMessagesFromServer() {
         try {
@@ -126,26 +129,6 @@ class MessagesPanel extends JPanel {
 
     }
 
-//    @Override
-//    protected void paintComponent(Graphics g) {
-//        super.paintComponent(g);
-//        g.setFont(new Font("Courier", Font.BOLD, 20));
-//        int currentX = 10;
-//        int currentY = 30;
-//        int dy = 30;
-//        if(messages != null) {
-//            for (Message msg: messages) {
-//                String messageText = msg.getSenderName() + ": " + msg.getText();
-//                g.setColor(new Color(49, 58, 68));
-//                g.fillRoundRect(5, currentY-20, messageText.length()*12, 25, 10, 10);
-//                g.setColor(Color.WHITE);
-//                g.drawString(messageText, currentX, currentY);
-//                currentY += dy;
-//            }
-//            setPreferredSize(new Dimension(getWidth(), currentY));
-//        }
-//    }
-
     public void setToUser(User toUser) {
         this.toUser = toUser;
     }
@@ -174,6 +157,7 @@ class MessagesPanel extends JPanel {
         }
 
         public MessagePanel(Message msg, boolean canBeDeleted) {
+            setBackground(backColor);
             String messageText = msg.getSenderName() + ": " + msg.getText();
             String allInformationString = getHtmlText(messageText);
 
