@@ -14,12 +14,14 @@ public class RegistrationForm extends JFrame {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket socket;
+    boolean failConnection = false;
 
     public RegistrationForm() {
         setTitle("Окно регистрации");
         setSize(500, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        getContentPane().setBackground(new Color(190, 190, 190));
         setLayout(new GridLayout(4, 2, 10, 10)); // 2 строки, 4 столбца, отступы 10 пикселей
         // Создание и установка иконки на фрейм
         URL url = getClass().getResource("registrationicon.png");
@@ -87,7 +89,6 @@ public class RegistrationForm extends JFrame {
         // Установка фрейма по центру, а также его видимости
         setLocationRelativeTo(null);
         setVisible(true);
-
     }
 
     private boolean connectToServer() {
@@ -122,6 +123,8 @@ public class RegistrationForm extends JFrame {
             // Если метод connectToServer возвращает false, выводится диалоговое окно с плохой новостью
             JOptionPane.showMessageDialog(RegistrationForm.this, "Ошибка подключения к серверу!");
             dispose();
+            failConnection = true;
+            return false;
         }
         String s = "";
         Scanner scanner = new Scanner(in);
@@ -149,7 +152,6 @@ public class RegistrationForm extends JFrame {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         String repeatedPassword = new String(repeatPasswordField.getPassword());
-
         if (isValidRegistration(username, password)) {
             if(!password.equals(repeatedPassword)) {
                 JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
@@ -160,6 +162,7 @@ public class RegistrationForm extends JFrame {
             dispose(); // Закрытие окна
             ChatFrame chat = new ChatFrame(username);
         } else {
+            if(failConnection) return;
             JOptionPane.showMessageDialog(RegistrationForm.this, "Пользователь с таким именем уже зарегистрирован!!");
             disconnectFromServer();
         }

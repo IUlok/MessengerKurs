@@ -26,7 +26,6 @@ public class ChatPanel extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) sendMessage();
-
             }
         });
         setLayout(new BorderLayout());
@@ -122,7 +121,6 @@ class MessagesPanel extends JPanel {
         } catch (IOException ie) {
             System.err.println("Исключение IOException: " + ie.getMessage());
         }
-
     }
     // Метод для установки пользователя
     public void setToUser(User toUser) {
@@ -142,12 +140,10 @@ class MessagesPanel extends JPanel {
             setLayout(new GridBagLayout());
             JLabel messageLabel = new JLabel(allInformationString);
             messageLabel.setForeground(Color.WHITE);
-
             GridBagConstraints c = new GridBagConstraints();
             c.insets = new Insets(3, 3, 3, 5);
             c.gridx = 0;
             add(messageLabel, c);
-
             if(canBeDeleted) {
                 DeleteButton deleteButton = new DeleteButton(msg);
                 c.insets = new Insets(0, 0, 0, 0);

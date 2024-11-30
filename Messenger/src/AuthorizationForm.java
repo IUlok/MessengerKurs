@@ -12,6 +12,7 @@ public class AuthorizationForm extends JFrame {
     Socket socket;
     private JTextField usernameField;
     private JPasswordField passwordField;
+    boolean failConnection = false;
     public AuthorizationForm() {
         // Задание необходимых настроек фрейму
         setTitle("Окно авторизации");
@@ -19,6 +20,7 @@ public class AuthorizationForm extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 1 столбец, но как бы 2, отступы 10 пикселей
+        getContentPane().setBackground(new Color(190, 190, 190));
         // Создание и установка иконки на фрейм
         URL url = getClass().getResource("loginicon.png");
         ImageIcon icon = new ImageIcon(url);
@@ -39,7 +41,7 @@ public class AuthorizationForm extends JFrame {
         JButton createUserButton = new JButton("Создать пользователя");
         createUserButton.setBorderPainted(false);
         createUserButton.setContentAreaFilled(false);
-        createUserButton.setForeground(Color.BLUE);
+        createUserButton.setForeground(new Color(179, 34, 34));
         createUserButton.addActionListener(e -> {
             new RegistrationForm(); // Открытие регистрационной формы
             dispose(); //Закрытие текущей формы
@@ -101,6 +103,8 @@ public class AuthorizationForm extends JFrame {
             // Если метод connectToServer возвращает false, выводится диалоговое окно с плохой новостью
             JOptionPane.showMessageDialog(AuthorizationForm.this, "Ошибка подключения к серверу!");
             dispose();
+            failConnection = true;
+            return false;
         }
         // Логика проверки учётных данных
         String s = "";
@@ -130,6 +134,7 @@ public class AuthorizationForm extends JFrame {
             // Создание фрейма чатов
             ChatFrame chat = new ChatFrame(username);
         } else {
+            if(failConnection) return;
             // Иначе вывод сообщения о неверных данных, отключение от сервера.
             JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
             disconnectFromServer();
