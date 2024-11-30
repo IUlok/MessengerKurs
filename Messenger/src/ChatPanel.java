@@ -92,14 +92,29 @@ class MessagesPanel extends JPanel {
     private User toUser;
     private final ObjectOutputStream out = Main.getOutputStream();
     private final ObjectInputStream in = Main.getInputStream();
+    public MessagesPanel(){
+        setLayout(new GridBagLayout());
+    }
     public void getMessagesFromServer() {
         try {
-            out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));
-            out.flush();
-            out.writeObject(toUser.getUserID());
-            out.flush();
+            out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));out.flush();
+            out.writeObject(toUser.getUserID());out.flush();
             try {
+                removeAll();
                 messages = (List<Message>) in.readObject();
+                int gridY = 0;
+                for(Message message : messages) {
+                    GridBagConstraints c = new GridBagConstraints();
+                    c.gridx = 0;
+                    c.gridy = gridY;
+                    c.anchor = GridBagConstraints.FIRST_LINE_START;
+                    c.ipady = 10;
+                    c.ipadx = 10;
+                    c.insets = new Insets(5, 0, 5, 0);
+                    gridY++;
+                    if(toUser.getUserName().equals(message.getSenderName()) && !toUser.getUserName().equals(message.getReceiverName())) add(new MessagePanel(message, false), c);
+                    else add(new MessagePanel(message, true), c);
+                }
                 revalidate();
                 repaint();
             } catch(ClassNotFoundException e) {
@@ -108,27 +123,28 @@ class MessagesPanel extends JPanel {
         } catch (IOException ie) {
             System.err.println("Исключение IOException: " + ie.getMessage());
         }
+
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setFont(new Font("Courier", Font.BOLD, 20));
-        int currentX = 10;
-        int currentY = 30;
-        int dy = 30;
-        if(messages != null) {
-            for (Message msg: messages) {
-                String messageText = msg.getSenderName() + ": " + msg.getText();
-                g.setColor(new Color(49, 58, 68));
-                g.fillRoundRect(5, currentY-20, messageText.length()*12, 25, 10, 10);
-                g.setColor(Color.WHITE);
-                g.drawString(messageText, currentX, currentY);
-                currentY += dy;
-            }
-            setPreferredSize(new Dimension(getWidth(), currentY));
-        }
-    }
+//    @Override
+//    protected void paintComponent(Graphics g) {
+//        super.paintComponent(g);
+//        g.setFont(new Font("Courier", Font.BOLD, 20));
+//        int currentX = 10;
+//        int currentY = 30;
+//        int dy = 30;
+//        if(messages != null) {
+//            for (Message msg: messages) {
+//                String messageText = msg.getSenderName() + ": " + msg.getText();
+//                g.setColor(new Color(49, 58, 68));
+//                g.fillRoundRect(5, currentY-20, messageText.length()*12, 25, 10, 10);
+//                g.setColor(Color.WHITE);
+//                g.drawString(messageText, currentX, currentY);
+//                currentY += dy;
+//            }
+//            setPreferredSize(new Dimension(getWidth(), currentY));
+//        }
+//    }
 
     public void setToUser(User toUser) {
         this.toUser = toUser;
@@ -136,5 +152,77 @@ class MessagesPanel extends JPanel {
 
     public List<Message> getMessages() {
         return messages;
+    }
+
+    class MessagePanel extends JPanel {
+        public String getHtmlText(String text) {
+            StringBuilder sb = new StringBuilder();
+            String[] words = text.split(" ");
+            sb.append("<html>");
+            int lettersCount = 0;
+            int maxLettersCount = 20;
+            for(String word: words) {
+                if((lettersCount + word.length() + 1) > maxLettersCount) {
+                    sb.append("<br>");
+                    lettersCount = 0;
+                }
+                sb.append(word).append(" ");
+                lettersCount += word.length() + 1;
+            }
+            sb.append("</html>");
+            return sb.toString();
+        }
+
+        public MessagePanel(Message msg, boolean canBeDeleted) {
+            String messageText = msg.getSenderName() + ": " + msg.getText();
+            String allInformationString = getHtmlText(messageText);
+
+            setLayout(new GridBagLayout());
+            JLabel messageLabel = new JLabel(allInformationString);
+            messageLabel.setForeground(Color.WHITE);
+
+            GridBagConstraints c = new GridBagConstraints();
+            c.insets = new Insets(3, 3, 3, 5);
+            c.gridx = 0;
+            add(messageLabel, c);
+
+            if(canBeDeleted) {
+                DeleteButton deleteButton = new DeleteButton(msg);
+                c.insets = new Insets(0, 0, 0, 0);
+                c.gridx = 1;
+                add(deleteButton, c);
+            }
+        }
+
+        class DeleteButton extends JButton {
+            public DeleteButton(Message msg) {
+                super("X");
+                setForeground(new Color(120, 0, 0));
+                setPreferredSize(new Dimension(50, 30));
+                setBorderPainted(false);
+                setContentAreaFilled(false);
+                addActionListener(e -> {
+                    // Обработка нажатия
+                    try {
+                        out.write("deleteMessage\n".getBytes());out.flush();
+                        out.writeObject(toUser.getUserID());out.flush();
+                        out.writeObject(msg.getId());
+                        Scanner sc = new Scanner(in);
+                        String response = sc.nextLine();
+                        if(!response.equals("OK")) return;
+                        getMessagesFromServer();
+                    } catch (IOException ex) {
+                        System.out.println("Исключение" + ex.getMessage());
+                    }
+                });
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.setColor(Color.GRAY);
+            g.fillRoundRect(0,0, getWidth() - 2, getHeight() - 2, 10, 10);
+        }
     }
 }
