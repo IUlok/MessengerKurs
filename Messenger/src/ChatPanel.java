@@ -1,6 +1,5 @@
 import serializable.Message;
 import serializable.User;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -9,25 +8,21 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
-
+// Класс панели чатов
 public class ChatPanel extends JPanel {
     private final String myUser;
     private User toUser;
-
     private final JButton sendButton;
-    private final JTextField messagePole;
-
+    private final JTextField messageField;
     private final MessagesPanel messagesPanel;
     private final JPanel sendMessagePanel;
-
     private final ObjectOutputStream out = Main.getOutputStream();
     private final ObjectInputStream in = Main.getInputStream();
-
     public ChatPanel(ChatFrame chatFrame) {
         this.myUser = chatFrame.myUser;
-        messagePole = new JTextField();
+        messageField = new JTextField();
         sendButton = new JButton("Отправить");
-        messagePole.addKeyListener(new KeyAdapter() {
+        messageField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) sendMessage();
@@ -35,59 +30,59 @@ public class ChatPanel extends JPanel {
             }
         });
         setLayout(new BorderLayout());
-        messagePole.setPreferredSize(new Dimension(350, 30));
+        // Настройка поля для сообщения и кнопки его отправки
+        messageField.setPreferredSize(new Dimension(350, 30));
         sendButton.addActionListener(e -> sendMessage());
-        messagesPanel = new MessagesPanel();
-
         sendMessagePanel = new JPanel();
         sendMessagePanel.setVisible(false);
-        sendMessagePanel.add(messagePole);
+        sendMessagePanel.add(messageField);
         sendMessagePanel.add(sendButton);
         sendMessagePanel.setBackground(new Color(41, 60, 48));
         add(sendMessagePanel, BorderLayout.SOUTH);
+        messagesPanel = new MessagesPanel();
         JScrollPane scrollbar = new JScrollPane(messagesPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollbar, BorderLayout.CENTER);
     }
-
+    // Метод для получения пользователя
     public User getToUser() {
         return toUser;
     }
-
+    // Метод для установки необходимого пользователя
     public void setToUser(User toUser) {
         this.toUser = toUser;
         messagesPanel.setToUser(toUser);
     }
-
+    // Метод для показа панели отправления
     public void activate() {
         sendMessagePanel.setVisible(true);
     }
-
+    // Метод для получения сообщений с сервера
     public void getMessagesFromServer() {
         messagesPanel.getMessagesFromServer();
     }
-
+    // Метод для отправления сообщений
     private void sendMessage(){
         try {
-            String msg = messagePole.getText();
+            String msg = messageField.getText();
             Message message = new Message(myUser, toUser.getUserName(), msg);
             out.write("sendMessage\n".getBytes(StandardCharsets.UTF_8));
             out.flush();
             out.writeObject(message);
             out.flush();
-            messagePole.setText("");
+            messageField.setText("");
             Scanner sc = new Scanner(in);
             String response = sc.nextLine();
             if(!response.equals("OK")) return;
             messagesPanel.getMessages().add(message);
         } catch(IOException ex) {
-            messagePole.setText("");
+            messageField.setText("");
         }
         messagesPanel.revalidate();
         messagesPanel.repaint();
     }
 }
-
+// Класс панели сообщений
 class MessagesPanel extends JPanel {
     private List<Message> messages;
     private User toUser;
@@ -98,6 +93,7 @@ class MessagesPanel extends JPanel {
         setLayout(new GridBagLayout());
         setBackground(backColor);
     }
+    // Метод для получения сообщений с сервера
     public void getMessagesFromServer() {
         try {
             out.write("getMessagesInChat\n".getBytes(StandardCharsets.UTF_8));out.flush();
@@ -128,34 +124,16 @@ class MessagesPanel extends JPanel {
         }
 
     }
-
+    // Метод для установки пользователя
     public void setToUser(User toUser) {
         this.toUser = toUser;
     }
-
+    // Метод для получения списка сообщений
     public List<Message> getMessages() {
         return messages;
     }
-
+    // Внутренний класс: панель для отдельного сообщения
     class MessagePanel extends JPanel {
-        public String getHtmlText(String text) {
-            StringBuilder sb = new StringBuilder();
-            String[] words = text.split(" ");
-            sb.append("<html>");
-            int lettersCount = 0;
-            int maxLettersCount = 20;
-            for(String word: words) {
-                if((lettersCount + word.length() + 1) > maxLettersCount) {
-                    sb.append("<br>");
-                    lettersCount = 0;
-                }
-                sb.append(word).append(" ");
-                lettersCount += word.length() + 1;
-            }
-            sb.append("</html>");
-            return sb.toString();
-        }
-
         public MessagePanel(Message msg, boolean canBeDeleted) {
             setBackground(backColor);
             String messageText = msg.getSenderName() + ": " + msg.getText();
@@ -177,7 +155,25 @@ class MessagesPanel extends JPanel {
                 add(deleteButton, c);
             }
         }
-
+        // Получение спарсенного варианта текста под панель сообщения
+        public String getHtmlText(String text) {
+            StringBuilder sb = new StringBuilder();
+            String[] words = text.split(" ");
+            sb.append("<html>");
+            int lettersCount = 0;
+            int maxLettersCount = 20;
+            for(String word: words) {
+                if((lettersCount + word.length() + 1) > maxLettersCount) {
+                    sb.append("<br>");
+                    lettersCount = 0;
+                }
+                sb.append(word).append(" ");
+                lettersCount += word.length() + 1;
+            }
+            sb.append("</html>");
+            return sb.toString();
+        }
+        // Внутренний класс внутреннего класса: кнопка удаления сообщений
         class DeleteButton extends JButton {
             public DeleteButton(Message msg) {
                 super("X");
@@ -185,6 +181,7 @@ class MessagesPanel extends JPanel {
                 setPreferredSize(new Dimension(50, 30));
                 setBorderPainted(false);
                 setContentAreaFilled(false);
+                // Добавление обработчика событий для удаления сообщения у пользователей
                 addActionListener(e -> {
                     // Обработка нажатия
                     try {
@@ -201,7 +198,7 @@ class MessagesPanel extends JPanel {
                 });
             }
         }
-
+        // Переопределённый метод для отрисовки сообщения
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);

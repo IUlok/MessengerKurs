@@ -12,8 +12,8 @@ public class AuthorizationForm extends JFrame {
     Socket socket;
     private JTextField usernameField;
     private JPasswordField passwordField;
-
     public AuthorizationForm() {
+        // Задание необходимых настроек фрейму
         setTitle("Окно авторизации");
         setSize(500, 200);
         setResizable(false);
@@ -29,31 +29,28 @@ public class AuthorizationForm extends JFrame {
         add(nameLabel);
         usernameField = new JTextField();
         add(usernameField);
-
+        // Метка "пароль" и её настройка
         JLabel passwordLabel = new JLabel("Пароль:");
         passwordLabel.setHorizontalAlignment(JLabel.CENTER);
         add(passwordLabel);
         passwordField = new JPasswordField();
         add(passwordField);
-
-        // Кнопка-текст "Создать пользователя"
+        // Кнопка-текст "Создать пользователя" и её настройка
         JButton createUserButton = new JButton("Создать пользователя");
         createUserButton.setBorderPainted(false);
         createUserButton.setContentAreaFilled(false);
         createUserButton.setForeground(Color.BLUE);
         createUserButton.addActionListener(e -> {
-            //disconnectFromServer();
             new RegistrationForm(); // Открытие регистрационной формы
             dispose(); //Закрытие текущей формы
         });
         add(createUserButton);
-
         // Кнопка "Вход"
         JButton loginButton = new JButton("Вход");
         loginButton.addActionListener(e -> {
             checkLogin();
         });
-
+        // Обработчики события от клавиши ENTER на клавиатуры для каждой текстовой панели
         usernameField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -66,17 +63,12 @@ public class AuthorizationForm extends JFrame {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) checkLogin();
             }
         });
-
         loginButton.setBackground(new Color(49, 58, 68));
         loginButton.setForeground(Color.WHITE);
         add(loginButton);
-
         setLocationRelativeTo(null); // Центрирование окна
         setVisible(true);
-
-
     }
-
     // Подключение к серверу. При удачном подключении возвращает true, иначе - false
     private boolean connectToServer() {
         try {
@@ -91,62 +83,54 @@ public class AuthorizationForm extends JFrame {
         Main.setSocket(socket);
         return true;
     }
-
-    private boolean disconnectFromServer() {
+    // Метод для отключения от сервера
+    private void disconnectFromServer() {
         try {
+            // Попытка закрытия потоков ввода-вывода и сокета
             in.close();
             out.close();
             socket.close();
         } catch(IOException e) {
-            return false;
+            System.out.println("Исключение: " + e.getMessage()); // Обработка исключения - вывод в консоль краткое соообщение о нём
         }
-        return true;
     }
-
-    // Заглушка для проверки учетных данных. ЗАМЕНИТЕ ЭТО на реальную аутентификацию.
+    // Проверка данных учётной записи
     private boolean isValidLogin(String username, String password) {
         boolean connStatus = connectToServer();
         if(!connStatus) {
-            // Заменить на диалоговое окно
-            System.err.println("Ошибка подключения к серверу");
+            // Если метод connectToServer возвращает false, выводится диалоговое окно с плохой новостью
+            JOptionPane.showMessageDialog(AuthorizationForm.this, "Ошибка подключения к серверу!");
             dispose();
         }
-        // Замените это на логику проверки учетных данных
-        String s = null;
+        // Логика проверки учётных данных
+        String s = "";
         if (username.isBlank() || password.isBlank()) {
             return false;
         }
         try {
             out.write(("login " + username + " " + password + "\n").getBytes());
             out.flush();
-
             Scanner scanner = new Scanner(in);
             s = scanner.next();
-
         }
-        catch(OptionalDataException e2) {
-            e2.printStackTrace();
-            System.out.println(e2.length);
-        }
-        catch(IOException e2) {
-            System.out.println("Ошибка установки соединения");
-            e2.getMessage();
+        catch(Exception e) {
+            System.out.println("Исключение: " + e.getMessage());
         }
         return s.equals("OK");
     }
-
+    // Метод для проверки заполненной формы авторизации
     private void checkLogin(){
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-
-        // Здесь должна быть реализована аутентификация
-        // ... проверка username и password ...
-
-        if (isValidLogin(username, password)) { // Заглушка для проверки
+        // Проверка логина и пароля
+        if (isValidLogin(username, password)) {
+            // Если успешная проверка, вывод информационного сообщения об успешном входе, закрытия фрейма с авторизацией.
             JOptionPane.showMessageDialog(AuthorizationForm.this, "Вход успешен!");
-            dispose(); // Закрытие окна
+            dispose();
+            // Создание фрейма чатов
             ChatFrame chat = new ChatFrame(username);
         } else {
+            // Иначе вывод сообщения о неверных данных, отключение от сервера.
             JOptionPane.showMessageDialog(AuthorizationForm.this, "Неверный логин или пароль.");
             disconnectFromServer();
         }

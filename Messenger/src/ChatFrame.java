@@ -18,12 +18,10 @@ class ChatFrame extends JFrame {
     ObjectInputStream in = Main.getInputStream();
     DefaultListModel<String> dlm = new DefaultListModel<String>();
     DefaultListModel<String> dlmchat = new DefaultListModel<String>();
-    //User currentUser;
     String myUser;
     boolean flag = false;
     ChatPanel chatPanel;
     private Timer timer;
-
     public ChatFrame (String username) {
         myUser = username;
         setTitle("ErroriestMsg");
@@ -64,15 +62,15 @@ class ChatFrame extends JFrame {
                         return;
                     }
                     String username1 = userList.getSelectedValue();
-                    User user1 = null;
+                    User necessaryUser = null;
                     if(username1.equals("Избранное")) username1 = myUser;
                     for (User user:users) {
                         if (user.getUserName().equals(username1)) {
-                            user1 = user;
+                            necessaryUser = user;
                             break;
                         }
                     }
-                    chatPanel.setToUser(user1);
+                    chatPanel.setToUser(necessaryUser);
                     chatPanel.getMessagesFromServer();
                     chatPanel.activate();
                 });
@@ -81,7 +79,6 @@ class ChatFrame extends JFrame {
                 add(userList);
                 chatPanel = new ChatPanel(this);
                 add(chatPanel);
-
             } catch(ClassNotFoundException e) {
                 System.err.println("ERROR: ошибка получения результата getUsers");
                 return;

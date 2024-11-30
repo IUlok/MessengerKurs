@@ -8,17 +8,14 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class RegistrationForm extends JFrame {
-
     private final JTextField usernameField;
     private final JPasswordField passwordField;
     private final JPasswordField repeatPasswordField;
-
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket socket;
 
     public RegistrationForm() {
-
         setTitle("Окно регистрации");
         setSize(500, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,7 +25,6 @@ public class RegistrationForm extends JFrame {
         URL url = getClass().getResource("registrationicon.png");
         ImageIcon icon = new ImageIcon(url);
         setIconImage(icon.getImage());
-
         // Добавление надписей и полей ввода
         JLabel nameLabel = new JLabel("Имя пользователя:");
         nameLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -39,16 +35,17 @@ public class RegistrationForm extends JFrame {
         JLabel passwordLabel = new JLabel("Пароль:");
         passwordLabel.setHorizontalAlignment(JLabel.CENTER);
         add(passwordLabel);
+        // Поле для ввода пароля
         passwordField = new JPasswordField();
         add(passwordField);
 
         JLabel repeatPasswordLabel = new JLabel("Повтор пароля:");
         repeatPasswordLabel.setHorizontalAlignment(JLabel.CENTER);
         add(repeatPasswordLabel);
+        // Поле для повторного ввода пароля
         repeatPasswordField = new JPasswordField();
         add(repeatPasswordField);
-
-        // Кнопка-текст "Войти в существующий аккаунт"
+        // Кнопка-текст "Войти в существующий аккаунт" и её настройка
         JButton loginButton = new JButton("Войти в существующий аккаунт");
         loginButton.setBorderPainted(false);
         loginButton.setContentAreaFilled(false);
@@ -59,12 +56,12 @@ public class RegistrationForm extends JFrame {
             dispose();
         });
         add(loginButton);
-
         // Кнопка "Вход"
         JButton registerButton = new JButton("Зарегистрироваться");
         registerButton.addActionListener(e -> {
             checkRegistration();
         });
+        // Обработчики события от клавиши ENTER на клавиатуры для каждой текстовой панели
         usernameField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -83,12 +80,12 @@ public class RegistrationForm extends JFrame {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) checkRegistration();
             }
         });
-
+        // Настройка кнопки регистрации
         registerButton.setBackground(new Color(49, 58, 68));
         registerButton.setForeground(Color.WHITE);
         add(registerButton);
-
-        setLocationRelativeTo(null); // Центрирование окна
+        // Установка фрейма по центру, а также его видимости
+        setLocationRelativeTo(null);
         setVisible(true);
 
     }
@@ -106,46 +103,41 @@ public class RegistrationForm extends JFrame {
         Main.setSocket(socket);
         return true;
     }
-
+    // Метод для отключения от сервера
     private void disconnectFromServer() {
         try {
+            // Попытка закрытия потоков ввода-вывода
             in.close();
             out.close();
             socket.close();
         } catch(IOException e) {
-            System.out.println("Исключение: " + e.getMessage());
+            System.out.println("Исключение: " + e.getMessage()); // Иначе выво исключения
         }
     }
-
     /* Попытка регистрации аккаунта username с паролем password.
     * При удачной регистрации возвращает true, иначе - false*/
     private boolean isValidRegistration(String username, String password) {
         boolean connStatus = connectToServer();
         if(!connStatus) {
-            // Заменить на диалоговое окно
-            System.err.println("Ошибка подключения к серверу");
+            // Если метод connectToServer возвращает false, выводится диалоговое окно с плохой новостью
+            JOptionPane.showMessageDialog(RegistrationForm.this, "Ошибка подключения к серверу!");
             dispose();
         }
-        String s = null;
+        String s = "";
         Scanner scanner = new Scanner(in);
-
         if (username.isBlank() || password.isBlank()) {
             return false;
         }
         try {
             out.write(("createUser " + username + " " + password + "\n").getBytes());
             out.flush();
-
             s = scanner.nextLine();
         }
-        catch(IOException e2) {
-            // Заменить на диалоговое окно
-            System.out.println("Ошибка отправки запроса");
-            System.out.println(e2.getMessage());
+        catch(IOException e) {
+            System.out.println("Исключение: " + e.getMessage());
             scanner.close();
             return false;
         }
-
         if(s.equals("OK")) {
             return scanner.nextLine().equals("OK");
         } else {
