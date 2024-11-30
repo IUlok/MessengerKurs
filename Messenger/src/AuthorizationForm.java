@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Scanner;
 
 public class AuthorizationForm extends JFrame {
@@ -18,6 +19,10 @@ public class AuthorizationForm extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10)); // 3 строки, 1 столбец, но как бы 2, отступы 10 пикселей
+        // Создание и установка иконки на фрейм
+        URL url = getClass().getResource("loginicon.png");
+        ImageIcon icon = new ImageIcon(url);
+        setIconImage(icon.getImage());
         // Добавление надписей и полей ввода
         JLabel nameLabel = new JLabel("Имя пользователя:");
         nameLabel.setHorizontalAlignment(JLabel.CENTER);

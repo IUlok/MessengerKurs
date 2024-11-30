@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -42,6 +43,10 @@ class ChatFrame extends JFrame {
             }
         });
         setLayout(new GridLayout(1, 2, 0, 0)); // 1 строка, 2 столбца, отступы 0 пикселей
+        // Создание и установка иконки на фрейм
+        URL url = getClass().getResource("messengericon.png");
+        ImageIcon icon = new ImageIcon(url);
+        setIconImage(icon.getImage());
         try {
             out.write("getUsers\n".getBytes(StandardCharsets.UTF_8));
             out.flush();

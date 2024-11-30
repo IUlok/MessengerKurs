@@ -4,6 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Scanner;
 
 public class RegistrationForm extends JFrame {
@@ -23,6 +24,10 @@ public class RegistrationForm extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLayout(new GridLayout(4, 2, 10, 10)); // 2 строки, 4 столбца, отступы 10 пикселей
+        // Создание и установка иконки на фрейм
+        URL url = getClass().getResource("registrationicon.png");
+        ImageIcon icon = new ImageIcon(url);
+        setIconImage(icon.getImage());
 
         // Добавление надписей и полей ввода
         JLabel nameLabel = new JLabel("Имя пользователя:");
