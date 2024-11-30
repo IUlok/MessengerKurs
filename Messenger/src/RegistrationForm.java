@@ -159,13 +159,12 @@ public class RegistrationForm extends JFrame {
         String password = new String(passwordField.getPassword());
         String repeatedPassword = new String(repeatPasswordField.getPassword());
 
-        if(!password.equals(repeatedPassword)) {
-            JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
-            disconnectFromServer();
-            return;
-        }
-
-        if (isValidRegistration(username, password)) { // Заглушка для проверки
+        if (isValidRegistration(username, password)) {
+            if(!password.equals(repeatedPassword)) {
+                JOptionPane.showMessageDialog(RegistrationForm.this, "Пароли не совпадают!");
+                disconnectFromServer();
+                return;
+            }
             JOptionPane.showMessageDialog(RegistrationForm.this, "Вуаля! Регистрация прошла успешно!");
             dispose(); // Закрытие окна
             ChatFrame chat = new ChatFrame(username);
