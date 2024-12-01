@@ -88,6 +88,8 @@ public class AuthorizationForm extends JFrame {
     // Метод для отключения от сервера
     private void disconnectFromServer() {
         try {
+            out.write("disconnect\n".getBytes());
+            out.flush();
             // Попытка закрытия потоков ввода-вывода и сокета
             in.close();
             out.close();

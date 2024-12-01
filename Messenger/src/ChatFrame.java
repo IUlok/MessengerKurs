@@ -33,6 +33,7 @@ class ChatFrame extends JFrame {
             public void windowClosing(WindowEvent e){
                 try {
                     out.write("disconnect\n".getBytes());
+                    out.flush();
                     out.close();
                     in.close();
                     socket.close();
@@ -80,6 +81,7 @@ class ChatFrame extends JFrame {
                 exitButton.setForeground(new Color(142, 124, 46));
                 exitButton.setBackground(new Color(210, 210, 210));
                 exitButton.addActionListener(e -> {
+                    timer.stop();
                     disconnectFromServer();
                     JOptionPane.showMessageDialog(ChatFrame.this, "Успешный выход из аккаунта!!");
                     new AuthorizationForm();
@@ -113,12 +115,14 @@ class ChatFrame extends JFrame {
     // Метод для отключения от сервера
     private void disconnectFromServer() {
         try {
+            out.write("disconnect\n".getBytes());
+            out.flush();
             // Попытка закрытия потоков ввода-вывода
             in.close();
             out.close();
             socket.close();
         } catch(IOException e) {
-            System.out.println("Исключение: " + e.getMessage()); // Иначе выво исключения
+            System.out.println("Исключение: " + e.getMessage()); // Иначе вывод исключения
         }
     }
 }
