@@ -53,7 +53,6 @@ public class RegistrationForm extends JFrame {
         loginButton.setContentAreaFilled(false);
         loginButton.setForeground(Color.BLUE);
         loginButton.addActionListener(e -> {
-            //disconnectFromServer();
             new AuthorizationForm();
             dispose();
         });

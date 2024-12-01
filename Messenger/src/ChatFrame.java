@@ -19,14 +19,16 @@ class ChatFrame extends JFrame {
     DefaultListModel<String> dlm = new DefaultListModel<String>();
     DefaultListModel<String> dlmchat = new DefaultListModel<String>();
     String myUser;
-    boolean flag = false;
+    JPanel userAndExitPanel;
     ChatPanel chatPanel;
     private Timer timer;
+    private final Color backColor = new Color(49, 58, 68);
     public ChatFrame (String username) {
         myUser = username;
         setTitle("ErroriestMsg");
         setSize(1000, 1000);
         setResizable(false);
+        userAndExitPanel = new JPanel(new BorderLayout());
         addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
                 try {
@@ -74,10 +76,22 @@ class ChatFrame extends JFrame {
                     chatPanel.getMessagesFromServer();
                     chatPanel.activate();
                 });
-                userList.setBackground(new Color(49, 58, 68));
+                JButton exitButton = new JButton("Выйти из аккаунта");
+                exitButton.setForeground(new Color(142, 124, 46));
+                exitButton.setBackground(new Color(210, 210, 210));
+                exitButton.addActionListener(e -> {
+                    disconnectFromServer();
+                    JOptionPane.showMessageDialog(ChatFrame.this, "Успешный выход из аккаунта!!");
+                    new AuthorizationForm();
+                    dispose();
+                });
+                userList.setBackground(backColor);
                 userList.setForeground(Color.WHITE);
-                add(userList);
+                userAndExitPanel.add(userList);
+                userAndExitPanel.add(exitButton, BorderLayout.SOUTH);
+                userAndExitPanel.setBackground(backColor);
                 chatPanel = new ChatPanel(this);
+                add(userAndExitPanel);
                 add(chatPanel);
             } catch(ClassNotFoundException e) {
                 System.err.println("ERROR: ошибка получения результата getUsers");
@@ -95,5 +109,16 @@ class ChatFrame extends JFrame {
             chatPanel.repaint();
         });
         timer.start();
+    }
+    // Метод для отключения от сервера
+    private void disconnectFromServer() {
+        try {
+            // Попытка закрытия потоков ввода-вывода
+            in.close();
+            out.close();
+            socket.close();
+        } catch(IOException e) {
+            System.out.println("Исключение: " + e.getMessage()); // Иначе выво исключения
+        }
     }
 }
